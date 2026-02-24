@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Маркетинг 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131c;
+    --border: #1e1e2e;
+    --accent: #e8ff5a;
+    --accent2: #5a8fff;
+    --accent3: #ff5a8f;
+    --accent4: #5affd8;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 50%, rgba(90,143,255,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(232,255,90,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, rgba(90,255,216,0.03) 0%, transparent 50%);
+    animation: bgShift 20s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes bgShift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(2%, 1%); }
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 56px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(56px, 8vw, 96px);
+    letter-spacing: 2px;
+    line-height: 0.9;
+    color: var(--text);
+  }
+
+  .header-left h1 span {
+    color: var(--accent);
+  }
+
+  .header-left p {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+
+  .header-right {
+    text-align: right;
+  }
+
+  .month-tabs {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+
+  .tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0a0f;
+    font-weight: 600;
+  }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2px;
+    margin-bottom: 32px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s ease;
+  }
+
+  .kpi-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .kpi-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .kpi-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .kpi-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .badge-up { background: rgba(90,255,216,0.15); color: var(--accent4); }
+  .badge-down { background: rgba(255,90,143,0.15); color: var(--accent3); }
+  .badge-neutral { background: rgba(107,107,138,0.2); color: var(--muted); }
+
+  /* Charts */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 32px;
+  }
+
+  .chart-card {
+    background: var(--surface);
+    padding: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .chart-card.wide {
+    grid-column: 1 / -1;
+  }
+
+  .chart-title {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .chart-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .chart-wrap {
+    position: relative;
+    height: 240px;
+  }
+
+  /* Table */
+  .table-card {
+    background: var(--surface);
+    padding: 32px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 16px 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(30,30,46,0.5);
+    transition: background 0.2s;
+  }
+
+  tbody tr:hover {
+    background: rgba(232,255,90,0.03);
+  }
+
+  tbody tr:last-child {
+    border-bottom: none;
+    font-weight: 600;
+  }
+
+  tbody td {
+    padding: 14px 16px 14px 0;
+    color: var(--text);
+  }
+
+  td.positive { color: var(--accent4); }
+  td.negative { color: var(--accent3); }
+  td.highlight { color: var(--accent); font-weight: 600; }
+
+  /* Social section */
+  .social-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-bottom: 32px;
+  }
+
+  .social-card {
+    background: var(--surface);
+    padding: 28px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .social-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .social-name {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .social-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .social-stat:last-child { border-bottom: none; }
+
+  .social-stat-label { color: var(--muted); font-size: 12px; }
+  .social-stat-value { font-weight: 500; }
+
+  /* Monthly comparison */
+  .comparison-banner {
+    background: var(--surface);
+    padding: 28px 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-left: 3px solid var(--accent);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .comparison-banner p {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .comparison-nums {
+    display: flex;
+    gap: 48px;
+  }
+
+  .comparison-item {
+    text-align: center;
+  }
+
+  .comparison-item .label { color: var(--muted); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .comparison-item .val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-1 { animation-delay: 0.05s; }
+  .animate-2 { animation-delay: 0.1s; }
+  .animate-3 { animation-delay: 0.15s; }
+  .animate-4 { animation-delay: 0.2s; }
+  .animate-5 { animation-delay: 0.25s; }
+
+  @media (max-width: 768px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .social-grid { grid-template-columns: 1fr; }
+    .comparison-nums { gap: 24px; }
+    header { flex-direction: column; align-items: flex-start; gap: 24px; }
+    .month-tabs { justify-content: flex-start; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="header-left">
+      <h1>МАРКЕТИНГ<br><span>2026</span></h1>
+      <p>Еженедельный отчёт · Обновляется каждую неделю</p>
+    </div>
+    <div class="header-right">
+      <div class="month-tabs">
+        <button class="tab active" onclick="setMonth('jan')">Январь</button>
+        <button class="tab" onclick="setMonth('feb')">Февраль</button>
+      </div>
+      <p style="color: var(--muted); font-size:11px; letter-spacing:1px; text-align:right" id="update-date"></p>
+    </div>
+  </header>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="kpi-grid">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- Monthly comparison banner -->
+  <div class="comparison-banner" id="comparison-banner">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- Channel table -->
+  <div class="table-card animate-3">
+    <div class="chart-title">Каналы · Лиды и продажи</div>
+    <table id="channels-table">
+      <!-- filled by JS -->
+    </table>
+  </div>
+
+  <!-- Charts row -->
+  <div class="charts-grid">
+    <div class="chart-card animate-4">
+      <div class="chart-title">Лиды по каналам</div>
+      <div class="chart-wrap"><canvas id="leadsChart"></canvas></div>
+    </div>
+    <div class="chart-card animate-4">
+      <div class="chart-title">Затраты и CPL</div>
+      <div class="chart-wrap"><canvas id="costsChart"></canvas></div>
+    </div>
+    <div class="chart-card wide animate-5">
+      <div class="chart-title">Лиды и продажи — Январь vs Февраль</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="compareChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Social stats -->
+  <div class="social-grid" id="social-grid">
+    <!-- filled by JS -->
+  </div>
+
+  <footer>
+    <span>Маркетинг & Продажи 2026</span>
+    <span id="footer-date"></span>
+  </footer>
+
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+const data = {
+  jan: {
+    month: 'Январь',
+    period: 'Декабрь 2025 – Январь 2026',
+    channels: [
+      { name: 'Telegram-канал',    subs: -29, visits: null, leads: 9,   sales: 0, conv: 0,        adSpend: 0,        salary: 20000,  total: 20000,       cpl: 2222,  cac: null },
+      { name: 'Instagram',         subs: -54, visits: null, leads: 64,  sales: 1, conv: 1.56,     adSpend: 0,        salary: 100000, total: 100000,      cpl: 1563,  cac: null },
+      { name: 'YouTube',           subs: 23,  visits: null, leads: 0,   sales: 0, conv: 0,        adSpend: 0,        salary: 0,      total: 0,           cpl: 0,     cac: null },
+      { name: 'YouTravel',         subs: 0,   visits: null, leads: 4,   sales: 1, conv: 25,       adSpend: 0,        salary: 0,      total: 0,           cpl: 0,     cac: null },
+      { name: 'Telegram-бот',      subs: 0,   visits: null, leads: 14,  sales: 2, conv: 14.29,    adSpend: 0,        salary: 0,      total: 0,           cpl: 0,     cac: null },
+      { name: 'Сайт (Яндекс.Д.)', subs: 0,   visits: 10330, leads: 14, sales: 1, conv: 7.14,     adSpend: 106388,   salary: 21000,  total: 127388,      cpl: 9099,  cac: 127388 },
+      { name: 'Повторники',        subs: 0,   visits: null, leads: null, sales: 4, conv: null,    adSpend: null,     salary: null,   total: null,        cpl: null,  cac: null },
+      { name: 'Рекомендации',      subs: 0,   visits: null, leads: null, sales: 2, conv: null,    adSpend: null,     salary: null,   total: null,        cpl: null,  cac: null },
+    ],
+    totals: { leads: 140, sales: 11, adSpend: 106388, salary: 141000, total: 247388, cpl: 1767, cac: 22490 },
+    telegram: { subsChange: -29, posts: 33, maxReactions: 14, maxViews: 382, leads: 9 },
+    instagram: { subsChange: -54, reels: 37, posts: 7, maxReelsViews: 35900, maxStoriesViews: 1963, leads: 64 },
+    youtube: { subsChange: 23, shorts: 37, maxViews: 1200, leads: 0 },
+  },
+  feb: {
+    month: 'Февраль',
+    period: 'Февраль 2026',
+    channels: [
+      { name: 'Telegram-канал',    subs: 8,   visits: null, leads: 4,   sales: 0, conv: 0,        adSpend: 0,        salary: 20000,  total: 20000,       cpl: 5000,  cac: null },
+      { name: 'Instagram',         subs: 18,  visits: null, leads: 59,  sales: 1, conv: 1.69,     adSpend: 0,        salary: 100000, total: 100000,      cpl: 1695,  cac: null },
+      { name: 'YouTube',           subs: 17,  visits: null, leads: 0,   sales: 0, conv: 0,        adSpend: 0,        salary: 0,      total: 0,           cpl: 0,     cac: null },
+      { name: 'YouTravel',         subs: 0,   visits: null, leads: 7,   sales: 0, conv: 0,        adSpend: 0,        salary: 0,      total: 0,           cpl: 0,     cac: null },
+      { name: 'Telegram-бот',      subs: 0,   visits: null, leads: 13,  sales: 1, conv: 7.69,     adSpend: 0,        salary: 0,      total: 0,           cpl: 0,     cac: null },
+      { name: 'Сайт (Яндекс.Д.)', subs: 0,   visits: 8363, leads: 12, sales: 1,  conv: 8.33,     adSpend: 101712,   salary: 21000,  total: 122712,      cpl: 10226, cac: 122712 },
+      { name: 'Повторники',        subs: 0,   visits: null, leads: null, sales: 1, conv: null,    adSpend: null,     salary: null,   total: null,        cpl: null,  cac: null },
+      { name: 'Рекомендации',      subs: 0,   visits: null, leads: null, sales: 2, conv: null,    adSpend: null,     salary: null,   total: null,        cpl: null,  cac: null },
+    ],
+    totals: { leads: 132, sales: 6, adSpend: 101712, salary: 141000, total: 242712, cpl: 1839, cac: 40452 },
+    telegram: { subsChange: 8, posts: 28, maxReactions: 14, maxViews: 293, leads: 4 },
+    instagram: { subsChange: 18, reels: 27, posts: 9, maxReelsViews: 131000, maxStoriesViews: 1249, leads: 59 },
+    youtube: { subsChange: 17, shorts: 27, maxViews: 1800, leads: 0 },
+  }
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentMonth = 'jan';
+let leadsChart, costsChart, compareChart;
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+const fmt = n => n == null ? '—' : n.toLocaleString('ru');
+const fmtK = n => n == null ? '—' : n >= 1000 ? (n/1000).toFixed(1) + 'K' : n;
+
+function delta(a, b) {
+  if (a == null || b == null) return '';
+  const d = a - b;
+  if (d > 0) return `<span class="badge-up kpi-badge">↑ ${fmt(d)}</span>`;
+  if (d < 0) return `<span class="badge-down kpi-badge">↓ ${fmt(Math.abs(d))}</span>`;
+  return `<span class="badge-neutral kpi-badge">= без изменений</span>`;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const d = data[currentMonth];
+  const prev = currentMonth === 'feb' ? data.jan : null;
+
+  // KPI
+  const kpiGrid = document.getElementById('kpi-grid');
+  kpiGrid.innerHTML = `
+    <div class="kpi-card animate-1" style="--accent-color: var(--accent)">
+      <div class="kpi-label">Лиды · Итого</div>
+      <div class="kpi-value">${d.totals.leads}</div>
+      ${prev ? delta(d.totals.leads, prev.totals.leads) : '<span class="kpi-badge badge-neutral">Базовый период</span>'}
+    </div>
+    <div class="kpi-card animate-1" style="--accent-color: var(--accent2)">
+      <div class="kpi-label">Продажи · Итого</div>
+      <div class="kpi-value">${d.totals.sales}</div>
+      ${prev ? delta(d.totals.sales, prev.totals.sales) : '<span class="kpi-badge badge-neutral">Базовый период</span>'}
+    </div>
+    <div class="kpi-card animate-2" style="--accent-color: var(--accent3)">
+      <div class="kpi-label">Затраты на рекламу</div>
+      <div class="kpi-value" style="font-size:38px">${fmtK(Math.round(d.totals.adSpend))} ₽</div>
+      ${prev ? delta(d.totals.adSpend, prev.totals.adSpend) : ''}
+    </div>
+    <div class="kpi-card animate-2" style="--accent-color: var(--accent4)">
+      <div class="kpi-label">CPL (с зарплатой)</div>
+      <div class="kpi-value" style="font-size:38px">${fmt(Math.round(d.totals.cpl))} ₽</div>
+      ${prev ? delta(d.totals.cpl, prev.totals.cpl) : ''}
+    </div>
+    <div class="kpi-card animate-2" style="--accent-color: var(--accent)">
+      <div class="kpi-label">Итого затраты</div>
+      <div class="kpi-value" style="font-size:38px">${fmtK(Math.round(d.totals.total))} ₽</div>
+      <div class="kpi-sub">Реклама + зарплаты</div>
+    </div>
+    <div class="kpi-card animate-2" style="--accent-color: var(--accent2)">
+      <div class="kpi-label">CAC (Сайт)</div>
+      <div class="kpi-value" style="font-size:38px">${fmtK(Math.round(d.totals.cac))} ₽</div>
+      <div class="kpi-sub">Стоимость привлечения</div>
+    </div>
+  `;
+
+  // Comparison banner
+  const banner = document.getElementById('comparison-banner');
+  if (prev) {
+    const leadsDelta = d.totals.leads - prev.totals.leads;
+    const salesDelta = d.totals.sales - prev.totals.sales;
+    const spendDelta = d.totals.total - prev.totals.total;
+    banner.innerHTML = `
+      <div>
+        <p>Сравнение с прошлым месяцем</p>
+        <div style="color:var(--text);font-size:18px;margin-top:4px;font-weight:500">Февраль vs Январь</div>
+      </div>
+      <div class="comparison-nums">
+        <div class="comparison-item">
+          <div class="label">Лиды</div>
+          <div class="val" style="color:${leadsDelta>=0?'var(--accent4)':'var(--accent3)'}">${leadsDelta>=0?'+':''}${leadsDelta}</div>
+        </div>
+        <div class="comparison-item">
+          <div class="label">Продажи</div>
+          <div class="val" style="color:${salesDelta>=0?'var(--accent4)':'var(--accent3)'}">${salesDelta>=0?'+':''}${salesDelta}</div>
+        </div>
+        <div class="comparison-item">
+          <div class="label">Затраты</div>
+          <div class="val" style="color:${spendDelta<=0?'var(--accent4)':'var(--accent3)'}">${spendDelta>=0?'+':''}${Math.round(spendDelta/1000)}K</div>
+        </div>
+      </div>
+    `;
+  } else {
+    banner.innerHTML = `
+      <div>
+        <p>Базовый период</p>
+        <div style="color:var(--text);font-size:18px;margin-top:4px">Январь 2026 — стартовые данные</div>
+      </div>
+      <div class="comparison-nums">
+        <div class="comparison-item">
+          <div class="label">Лиды</div>
+          <div class="val" style="color:var(--accent)">${d.totals.leads}</div>
+        </div>
+        <div class="comparison-item">
+          <div class="label">Продажи</div>
+          <div class="val" style="color:var(--accent)">${d.totals.sales}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Table
+  const tableEl = document.getElementById('channels-table');
+  const rows = d.channels.filter(c => c.leads !== null || c.sales > 0);
+  tableEl.innerHTML = `
+    <thead>
+      <tr>
+        <th>Канал</th>
+        <th>Подписчики</th>
+        <th>Лиды</th>
+        <th>Продажи</th>
+        <th>Конверсия</th>
+        <th>Затраты</th>
+        <th>CPL</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(c => `<tr>
+        <td>${c.name}</td>
+        <td class="${c.subs > 0 ? 'positive' : c.subs < 0 ? 'negative' : ''}">${c.subs > 0 ? '+' : ''}${fmt(c.subs)}</td>
+        <td class="${c.leads > 0 ? 'highlight' : ''}">${fmt(c.leads)}</td>
+        <td>${fmt(c.sales)}</td>
+        <td>${c.conv ? c.conv.toFixed(1) + '%' : '—'}</td>
+        <td>${c.adSpend ? fmt(Math.round(c.adSpend)) + ' ₽' : '—'}</td>
+        <td>${c.cpl ? fmt(Math.round(c.cpl)) + ' ₽' : '—'}</td>
+      </tr>`).join('')}
+      <tr>
+        <td>Итого</td>
+        <td>—</td>
+        <td class="highlight">${d.totals.leads}</td>
+        <td class="highlight">${d.totals.sales}</td>
+        <td>—</td>
+        <td>${fmt(Math.round(d.totals.total))} ₽</td>
+        <td class="highlight">${fmt(Math.round(d.totals.cpl))} ₽</td>
+      </tr>
+    </tbody>
+  `;
+
+  // Social cards
+  const socialGrid = document.getElementById('social-grid');
+  socialGrid.innerHTML = `
+    <div class="social-card animate-5">
+      <div class="social-header">
+        <div class="social-icon" style="background:rgba(90,143,255,0.15)">✈️</div>
+        <div>
+          <div style="font-weight:500;font-size:15px">Telegram</div>
+          <div class="social-name">Канал</div>
+        </div>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Прирост подписчиков</span>
+        <span class="social-stat-value" style="color:${d.telegram.subsChange>=0?'var(--accent4)':'var(--accent3)'}">${d.telegram.subsChange>=0?'+':''}${d.telegram.subsChange}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Выложено постов</span>
+        <span class="social-stat-value">${d.telegram.posts}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Макс. просмотры</span>
+        <span class="social-stat-value">${fmt(d.telegram.maxViews)}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Макс. реакции</span>
+        <span class="social-stat-value">${d.telegram.maxReactions}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Лиды с канала</span>
+        <span class="social-stat-value" style="color:var(--accent)">${d.telegram.leads}</span>
+      </div>
+    </div>
+
+    <div class="social-card animate-5">
+      <div class="social-header">
+        <div class="social-icon" style="background:rgba(255,90,143,0.15)">📸</div>
+        <div>
+          <div style="font-weight:500;font-size:15px">Instagram</div>
+          <div class="social-name">Основной аккаунт</div>
+        </div>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Прирост подписчиков</span>
+        <span class="social-stat-value" style="color:${d.instagram.subsChange>=0?'var(--accent4)':'var(--accent3)'}">${d.instagram.subsChange>=0?'+':''}${d.instagram.subsChange}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Выложено рилсов</span>
+        <span class="social-stat-value">${d.instagram.reels}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Макс. просмотры рилс</span>
+        <span class="social-stat-value">${fmt(d.instagram.maxReelsViews)}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Макс. просмотры сторис</span>
+        <span class="social-stat-value">${fmt(d.instagram.maxStoriesViews)}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Лиды с Instagram</span>
+        <span class="social-stat-value" style="color:var(--accent)">${d.instagram.leads}</span>
+      </div>
+    </div>
+
+    <div class="social-card animate-5">
+      <div class="social-header">
+        <div class="social-icon" style="background:rgba(90,255,216,0.15)">▶️</div>
+        <div>
+          <div style="font-weight:500;font-size:15px">YouTube</div>
+          <div class="social-name">Shorts</div>
+        </div>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Прирост подписчиков</span>
+        <span class="social-stat-value" style="color:${d.youtube.subsChange>=0?'var(--accent4)':'var(--accent3)'}">${d.youtube.subsChange>=0?'+':''}${d.youtube.subsChange}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Выложено Shorts</span>
+        <span class="social-stat-value">${d.youtube.shorts}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Макс. просмотры</span>
+        <span class="social-stat-value">${fmt(d.youtube.maxViews)}</span>
+      </div>
+      <div class="social-stat">
+        <span class="social-stat-label">Лиды с YouTube</span>
+        <span class="social-stat-value" style="color:var(--muted)">0</span>
+      </div>
+    </div>
+  `;
+
+  renderCharts(d);
+}
+
+// ─── CHARTS ───────────────────────────────────────────────────────────────────
+const chartDefaults = {
+  plugins: {
+    legend: { labels: { color: '#6b6b8a', font: { family: 'DM Sans', size: 12 }, boxWidth: 12, padding: 16 } }
+  },
+  scales: {
+    x: { ticks: { color: '#6b6b8a', font: { family: 'DM Sans', size: 11 } }, grid: { color: '#1e1e2e' } },
+    y: { ticks: { color: '#6b6b8a', font: { family: 'DM Sans', size: 11 } }, grid: { color: '#1e1e2e' } }
+  }
+};
+
+function renderCharts(d) {
+  const channelNames = ['Telegram', 'Instagram', 'YouTravel', 'Telegram-бот', 'Сайт'];
+  const leadsData = [d.channels[0].leads, d.channels[1].leads, d.channels[3].leads, d.channels[4].leads, d.channels[5].leads];
+  const costsData = [d.channels[0].total, d.channels[1].total, d.channels[4].total];
+  const cplData = [d.channels[0].cpl, d.channels[1].cpl, d.channels[5].cpl];
+
+  if (leadsChart) leadsChart.destroy();
+  leadsChart = new Chart(document.getElementById('leadsChart'), {
+    type: 'bar',
+    data: {
+      labels: channelNames,
+      datasets: [{
+        label: 'Лиды',
+        data: leadsData,
+        backgroundColor: ['rgba(90,143,255,0.7)', 'rgba(255,90,143,0.7)', 'rgba(90,255,216,0.7)', 'rgba(232,255,90,0.7)', 'rgba(168,90,255,0.7)'],
+        borderRadius: 2,
+      }]
+    },
+    options: { ...chartDefaults, responsive: true, maintainAspectRatio: false }
+  });
+
+  if (costsChart) costsChart.destroy();
+  costsChart = new Chart(document.getElementById('costsChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Telegram', 'Instagram', 'Сайт'],
+      datasets: [
+        {
+          label: 'Затраты (₽)',
+          data: costsData,
+          backgroundColor: 'rgba(255,90,143,0.5)',
+          borderRadius: 2,
+          yAxisID: 'y',
+        },
+        {
+          label: 'CPL (₽)',
+          data: cplData,
+          type: 'line',
+          borderColor: 'rgba(232,255,90,0.9)',
+          backgroundColor: 'rgba(232,255,90,0.1)',
+          pointBackgroundColor: '#e8ff5a',
+          tension: 0.4,
+          yAxisID: 'y1',
+        }
+      ]
+    },
+    options: {
+      ...chartDefaults,
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        ...chartDefaults.scales,
+        y: { ...chartDefaults.scales.y, position: 'left' },
+        y1: { ...chartDefaults.scales.y, position: 'right', grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+
+  // Compare chart (always shows both months)
+  if (compareChart) compareChart.destroy();
+  compareChart = new Chart(document.getElementById('compareChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Лиды', 'Продажи', 'Конверсия %'],
+      datasets: [
+        {
+          label: 'Январь',
+          data: [data.jan.totals.leads, data.jan.totals.sales, parseFloat((data.jan.totals.sales/data.jan.totals.leads*100).toFixed(1))],
+          backgroundColor: 'rgba(90,143,255,0.6)',
+          borderRadius: 2,
+        },
+        {
+          label: 'Февраль',
+          data: [data.feb.totals.leads, data.feb.totals.sales, parseFloat((data.feb.totals.sales/data.feb.totals.leads*100).toFixed(1))],
+          backgroundColor: 'rgba(232,255,90,0.6)',
+          borderRadius: 2,
+        }
+      ]
+    },
+    options: { ...chartDefaults, responsive: true, maintainAspectRatio: false }
+  });
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function setMonth(m) {
+  currentMonth = m;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  render();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+const now = new Date();
+const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+document.getElementById('update-date').textContent = 'Обновлено: ' + dateStr;
+document.getElementById('footer-date').textContent = dateStr;
+render();
+</script>
+</body>
+</html>
